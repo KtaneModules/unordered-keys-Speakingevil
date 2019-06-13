@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -271,7 +271,9 @@ public class UnorderedKeysScript : MonoBehaviour
     private int[][] info = new int[6][] { new int[3], new int[3], new int[3], new int[3], new int[3], new int[3] };
     private int pressCountdown = 6;
     private int resetCount;
+    private int remainingResets = 4;
     private IEnumerator sequence;
+    private bool noValids;
     private bool starting = true;
     private bool pressable;
     private bool[] alreadypressed = new bool[7];
@@ -321,11 +323,16 @@ public class UnorderedKeysScript : MonoBehaviour
                 }
                 else
                 {
-                    if (resetCount < 5)
+                    resetCount++;
+                    if (noValids == true)
                     {
-                        resetCount++;
+                        remainingResets -= 2;
                     }
                     else
+                    {
+                        remainingResets--;
+                    }
+                    if (remainingResets < 1)
                     {
                         moduleSolved = true;
                     }
@@ -408,6 +415,36 @@ public class UnorderedKeysScript : MonoBehaviour
         keys[keyIndex].GetComponentInChildren<TextMesh>().text = label;
     }
 
+    private void setRandomKey(int keyIndex, int rand1, int rand2, int rand3)
+    {
+        keyID[keyIndex].material = keyColours[rand1];
+        switch (rand2)
+        {
+            case 0:
+                keys[keyIndex].GetComponentInChildren<TextMesh>().color = new Color32(255, 25, 25, 255);
+                break;
+            case 1:
+                keys[keyIndex].GetComponentInChildren<TextMesh>().color = new Color32(25, 255, 25, 255);
+                break;
+            case 2:
+                keys[keyIndex].GetComponentInChildren<TextMesh>().color = new Color32(25, 25, 255, 255);
+                break;
+            case 3:
+                keys[keyIndex].GetComponentInChildren<TextMesh>().color = new Color32(25, 255, 255, 255);
+                break;
+            case 4:
+                keys[keyIndex].GetComponentInChildren<TextMesh>().color = new Color32(255, 75, 255, 255);
+                break;
+            case 5:
+                keys[keyIndex].GetComponentInChildren<TextMesh>().color = new Color32(255, 255, 75, 255);
+                break;
+        }
+        var label = (rand3 + 1).ToString();
+        if (colorblind)
+            label += "\n" + "RGBCMY"[info[keyIndex][1]] + "\n\n" + "RGBCMY"[info[keyIndex][0]];
+        keys[keyIndex].GetComponentInChildren<TextMesh>().text = label;
+    }
+
     private void Reset()
     {
         if (moduleSolved == false)
@@ -416,9 +453,9 @@ public class UnorderedKeysScript : MonoBehaviour
             {
                 if (alreadypressed[i] == false)
                 {
-                    info[i][0] = UnityEngine.Random.Range(0, 6);
-                    info[i][1] = UnityEngine.Random.Range(0, 6);
-                    info[i][2] = UnityEngine.Random.Range(0, 6);
+                    info[i][0] = Random.Range(0, 6);
+                    info[i][1] = Random.Range(0, 6);
+                    info[i][2] = Random.Range(0, 6);
                     answer.Add(table[info[i][0]][info[i][1]][i][info[i][2]].ToString());
                 }
                 else
@@ -454,11 +491,13 @@ public class UnorderedKeysScript : MonoBehaviour
             string[] carray = c.ToArray();
             if (carray.Count() != 0)
             {
+                noValids = false;
                 string C = string.Join(", ", carray);
                 Debug.LogFormat("[Unordered Keys #{0}] Valid key(s) after {1} reset(s) and {3} pressed key(s): {2}", moduleID, resetCount, C, 6 - pressCountdown);
             }
             else
             {
+                noValids = true;
                 Debug.LogFormat("[Unordered Keys #{0}] No valid keys after {1} reset(s) and {2} pressed key(s); reset required.", moduleID, resetCount, 6 - pressCountdown);
             }
         }
@@ -528,11 +567,14 @@ public class UnorderedKeysScript : MonoBehaviour
             {
                 for (int j = 0; j < 6; j++)
                 {
+                    int[] rand = new int[3];
                     if (alreadypressed[j] == false && j > (i - 4) / 5)
                     {
                         for (int k = 0; k < 3; k++)
-                            info[(i - 4) / 5][k] = UnityEngine.Random.Range(0, 6);
-                        setKey(j);
+                        {
+                            rand[k] = Random.Range(0, 6);
+                        }
+                        setRandomKey(j, rand[0], rand[1], rand[2]);
                     }
                 }
             }
