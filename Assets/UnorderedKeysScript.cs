@@ -385,10 +385,10 @@ public class UnorderedKeysScript : MonoBehaviour
         }
     }
 
-    private void setKey(int keyIndex)
+    private void setKey(int keyIndex, int? keyColor = null, int? labelColor = null, int? label = null)
     {
-        keyID[keyIndex].material = keyColours[info[keyIndex][0]];
-        switch (info[keyIndex][1])
+        keyID[keyIndex].material = keyColours[keyColor ?? info[keyIndex][0]];
+        switch (labelColor ?? info[keyIndex][1])
         {
             case 0:
                 keys[keyIndex].GetComponentInChildren<TextMesh>().color = new Color32(255, 25, 25, 255);
@@ -409,40 +409,10 @@ public class UnorderedKeysScript : MonoBehaviour
                 keys[keyIndex].GetComponentInChildren<TextMesh>().color = new Color32(255, 255, 75, 255);
                 break;
         }
-        var label = (info[keyIndex][2] + 1).ToString();
+        var labelStr = (label ?? info[keyIndex][2] + 1).ToString();
         if (colorblind)
-            label += "\n" + "RGBCMY"[info[keyIndex][1]] + "\n\n" + "RGBCMY"[info[keyIndex][0]];
-        keys[keyIndex].GetComponentInChildren<TextMesh>().text = label;
-    }
-
-    private void setRandomKey(int keyIndex, int rand1, int rand2, int rand3)
-    {
-        keyID[keyIndex].material = keyColours[rand1];
-        switch (rand2)
-        {
-            case 0:
-                keys[keyIndex].GetComponentInChildren<TextMesh>().color = new Color32(255, 25, 25, 255);
-                break;
-            case 1:
-                keys[keyIndex].GetComponentInChildren<TextMesh>().color = new Color32(25, 255, 25, 255);
-                break;
-            case 2:
-                keys[keyIndex].GetComponentInChildren<TextMesh>().color = new Color32(25, 25, 255, 255);
-                break;
-            case 3:
-                keys[keyIndex].GetComponentInChildren<TextMesh>().color = new Color32(25, 255, 255, 255);
-                break;
-            case 4:
-                keys[keyIndex].GetComponentInChildren<TextMesh>().color = new Color32(255, 75, 255, 255);
-                break;
-            case 5:
-                keys[keyIndex].GetComponentInChildren<TextMesh>().color = new Color32(255, 255, 75, 255);
-                break;
-        }
-        var label = (rand3 + 1).ToString();
-        if (colorblind)
-            label += "\n" + "RGBCMY"[info[keyIndex][1]] + "\n\n" + "RGBCMY"[info[keyIndex][0]];
-        keys[keyIndex].GetComponentInChildren<TextMesh>().text = label;
+            labelStr += "\n" + "RGBCMY"[info[keyIndex][1]] + "\n\n" + "RGBCMY"[info[keyIndex][0]];
+        keys[keyIndex].GetComponentInChildren<TextMesh>().text = labelStr;
     }
 
     private void Reset()
@@ -567,15 +537,8 @@ public class UnorderedKeysScript : MonoBehaviour
             {
                 for (int j = 0; j < 6; j++)
                 {
-                    int[] rand = new int[3];
                     if (alreadypressed[j] == false && j > (i - 4) / 5)
-                    {
-                        for (int k = 0; k < 3; k++)
-                        {
-                            rand[k] = Random.Range(0, 6);
-                        }
-                        setRandomKey(j, rand[0], rand[1], rand[2]);
-                    }
+                        setKey(j, Random.Range(0, 6), Random.Range(0, 6), Random.Range(0, 6));
                 }
             }
             yield return new WaitForSeconds(0.1f);
