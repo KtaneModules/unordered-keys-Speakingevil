@@ -591,7 +591,7 @@ public class UnorderedKeysScript : MonoBehaviour
         if (Regex.IsMatch(command, @"^\s*colorblind\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
         {
             colorblind = true;
-            for (int i = 0; i < keys.Count; i++)
+            for (int i = 0; i < 6; i++)
                 setKey(i);
             yield return null;
             yield break;
